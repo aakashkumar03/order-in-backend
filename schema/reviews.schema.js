@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const reviewSchema = new mongoose.Schema({
-  name: { 
+  userName: { 
     type: String, 
     required: true, 
   },
@@ -23,6 +23,6 @@ const reviewSchema = new mongoose.Schema({
   }
 });
 
-const Review = mongoose.model('Review', reviewSchema);
+const Reviews = mongoose.model('Reviews', reviewSchema);
 
-module.exports = Review;
+module.exports = Reviews;

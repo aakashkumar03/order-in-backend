@@ -1,6 +1,14 @@
 const mongoose = require('mongoose');
 
 const addressSchema = new mongoose.Schema({
+    userId:{
+        type:Number,
+        required:true
+    },
+    addressId:{
+        type:Number,
+        required:true
+    },
     state: {
         type: String,
         required: true
@@ -20,6 +28,10 @@ const addressSchema = new mongoose.Schema({
     fullAddress: {
         type: String,
         required: true
+    },
+    isDefault:{
+        type:String,
+        default:false
     }
 });
 
