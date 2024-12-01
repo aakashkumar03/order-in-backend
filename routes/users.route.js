@@ -13,20 +13,23 @@ router.post("/signup", async (req, res) => {
         const { email, password, name, phone } = req.body;
         const isUserExist = await User.findOne({ email });
         if (isUserExist) {
-            res.status(400).json({ message: "Email already taken" });
+          res.status(400).json({ message: "Email already taken" });
             return
-        }
-        else {
+          }
+          else {
             const hashedPassword = bcrypt.hashSync(password, 10);
             const userId=Date.now()
             const newUser = await new User({
-                userId:userId, 
-                email:email, 
-                password: hashedPassword, 
-                username:name, 
-                phone:phone }).save();
+              userId:userId, 
+              email:email, 
+              password: hashedPassword, 
+              username:name,
+              gender:'',
+              country:'', 
+              phone:phone }).save();
+
             const token = jwt.sign({ email,userId }, process.env.JWT_SECRET);
-            return res.status(200).json({ message: "User created successfully", token, id: newUser._id });
+            return res.status(200).json({ message: "User created successfully",userId });
         }
     }
     catch (error) {
@@ -50,7 +53,7 @@ router.post("/signin", async (req, res) => {
             return
         }
         const token = jwt.sign({ email,userId }, process.env.JWT_SECRET);
-        return res.status(200).json({ message: "Login successful", token, id: user._id });
+        return res.status(200).json({ message: "Login successful", token, userId});
     }
     catch (error) {
         console.log(error);
