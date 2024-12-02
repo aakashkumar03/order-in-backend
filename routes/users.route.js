@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const env = require("dotenv");
 env.config();
-const authenticateToken =require('../middlewares/auth')
+const auth = require("../middlewares/auth");
 
 router.post("/signup", async (req, res) => {
     try {
@@ -23,7 +23,7 @@ router.post("/signup", async (req, res) => {
               userId:userId, 
               email:email, 
               password: hashedPassword, 
-              username:name,
+              name:name,
               gender:'',
               country:'', 
               phone:phone }).save();
@@ -62,42 +62,36 @@ router.post("/signin", async (req, res) => {
 });
 
 
-router.get('/userProfile',authenticateToken, async (req, res) => {
-  const token = req.header('Authorization').replace('Bearer ', '');
-    console.log(token);
-    
+router.get('/userProfile',auth, async (req, res) => {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET); 
-    const email = decoded.email;
 
-    const user = await User.findOne({ email });
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    res.json(user);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server Error' });
+      const user = await User.findOne({ userId:req.userId });
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      res.json(user);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Server Error' });
   }
 });
 
 
-router.put('/userProfile',authenticateToken, async (req, res) => {
+router.put('/userProfile',auth, async (req, res) => {
   const token = req.header('Authorization').replace('Bearer ', '');
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET); 
     const userId = Number(decoded.userId); 
 
-    const { username, email, gender ,country } = req.body;
+    const { name, email, gender ,country } = req.body;
 
     
     const updatedUser = await User.findOneAndUpdate(
       { userId: userId }, 
       {
-        username,
+        name,
         email,
         country,
         gender

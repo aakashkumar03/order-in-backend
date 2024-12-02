@@ -5,6 +5,9 @@ const addressSchema = new mongoose.Schema({
         type:Number,
         required:true
     },
+    name:{
+        type:String
+    },
     addressId:{
         type:Number,
         required:true

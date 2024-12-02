@@ -2,19 +2,22 @@ const express = require("express");
 const router = express.Router();
 const Cards = require("../schema/cards.schema")
 const { generateRandom5DigitNumber } = require('../utils/constants')
-const auth = require('../middlewares/auth')
+const auth = require('../middlewares/auth');
+const User = require("../schema/user.schema");
 
 
 router.post('/create',auth, async (req, res) => {
     try {
-      const { cardNumber, expireDate, cvv, nameOnCard } = req.body;
+      const { cardNumber, expireDate, cvv, nameOnCard,cardId } = req.body;
       
-      const cardExist = await Cards.find({cardNumber:cardNumber})
+      const cardExist = await Cards.find({cardId:cardId})
+      const userDetails = await User.find({userId:req.userId})
 
       if (cardExist.length==0) {
         const newCard = new Cards({ 
             cardId:generateRandom5DigitNumber(),
             userId:req.userId,
+            name:userDetails.name,
             cardNumber:cardNumber, 
             expireDate:expireDate,
             cvv:cvv,
@@ -22,9 +25,15 @@ router.post('/create',auth, async (req, res) => {
           const savedCard = await newCard.save();
           res.status(201).json(savedCard);
       }else{
-        res.json({
-            message:"Card Number already exist"
-        })
+        const updatedCard = await Cards.findOneAndUpdate({cardId:cardId}, {
+          userId:req.userId,
+          name:userDetails.name,
+          cardNumber:cardNumber, 
+          expireDate:expireDate,
+          cvv:cvv,
+          nameOnCard:nameOnCard
+        }, { new: true });
+        res.status(200).json(updatedCard);
       }
     } catch (err) {
       res.status(400).json({ error: err.message });
@@ -71,10 +80,9 @@ router.post('/create',auth, async (req, res) => {
   });
 
 
-  router.delete('/delete/:id',auth, async (req, res) => {
+  router.post('/delete',auth, async (req, res) => {
     try {
-        const deleteCard = await Cards.deleteOne({cardId:req.params.id})
-        console.log(deleteCard);
+        const deleteCard = await Cards.deleteOne({cardId:req.body.cardId})
         
         if (deleteCard.deletedCount==0) {
             return res.status(404).json({ message: 'Card not found' });

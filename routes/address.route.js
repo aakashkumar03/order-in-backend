@@ -1,17 +1,22 @@
 const express = require("express");
 const router = express.Router();
 const Address = require("../schema/address.schema")
+const User = require("../schema/user.schema")
 const { generateRandom5DigitNumber } = require('../utils/constants')
 const auth = require('../middlewares/auth')
 
 
 router.post('/create',auth, async (req, res) => {
     try {
-      const { state,city,pincode,phone,fullAddress,isDefault } = req.body;
+      const { state,city,pincode,phone,fullAddress,isDefault='' } = req.body;
+      const userDetails = await User.find({userId:req.userId})
+      console.log(userDetails);
+      
       
         const newAddress = new Address({ 
             addressId:generateRandom5DigitNumber(),
             userId:req.userId,
+            name:userDetails[0].name,
             state:state, 
             city:city,
             pincode:pincode,
@@ -43,11 +48,11 @@ router.post('/create',auth, async (req, res) => {
   });
   
   // Update a card
-  router.put('/update/:id',auth, async (req, res) => {
+  router.post('/edit',auth, async (req, res) => {
     try {
-        const { state,city,pincode,phone,fullAddress } = req.body;
+        const { state,city,pincode,phone,fullAddress,addressId } = req.body;
+        console.log(req.body);
         
-        const addressId=Number(req.params.id)
         const updatedAddress = await Address.findOneAndUpdate({ addressId: addressId }, {
             state:state, 
             city:city,
@@ -67,9 +72,9 @@ router.post('/create',auth, async (req, res) => {
   });
 
 
-  router.delete('/delete/:id',auth, async (req, res) => {
+  router.post('/delete',auth, async (req, res) => {
     try {
-        const deleteAddress = await Address.deleteOne({addressId:req.params.id})
+        const deleteAddress = await Address.deleteOne({addressId:req.body.id})
         
         if (deleteAddress.deletedCount==0) {
             return res.status(404).json({ message: 'Address not found' });
