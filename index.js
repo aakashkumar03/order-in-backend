@@ -6,6 +6,7 @@ const cors = require("cors");
 const userRoutes = require("./routes/users.route");
 const cardsRoutes = require("./routes/cards.route");
 const addressRoutes = require("./routes/address.route");
+const cartRoute = require("./routes/cart.route")
 const allRoutes = require("./routes/all.route");
 
 app.use(cors());
@@ -19,6 +20,7 @@ app.get("/healthCheck", (req, res) => {
 app.use("/api/user", userRoutes);
 app.use("/api/card", cardsRoutes);
 app.use("/api/address", addressRoutes);
+app.use("/api/cart", cartRoute);
 app.use("/api/all", allRoutes);
 const PORT = process.env.PORT || 3000;
 const MONGO_URL = process.env.MONGO_URL;
