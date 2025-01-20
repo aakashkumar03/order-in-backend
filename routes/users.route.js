@@ -13,8 +13,7 @@ router.post("/signup", async (req, res) => {
         const { email, password, name, phone } = req.body;
         const isUserExist = await User.findOne({ email });
         if (isUserExist) {
-          res.status(400).json({ message: "Email already taken" });
-            return
+          return res.status(201).json({ status:201,message: "Email already taken" });
           }
           else {
             const hashedPassword = bcrypt.hashSync(password, 10);
@@ -29,7 +28,7 @@ router.post("/signup", async (req, res) => {
               phone:phone }).save();
 
             const token = jwt.sign({ email,userId }, process.env.JWT_SECRET);
-            return res.status(200).json({ message: "User created successfully",userId });
+            return res.status(200).json({ status:200,message: "User created successfully",userId });
         }
     }
     catch (error) {
